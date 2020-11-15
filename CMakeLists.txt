@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.6...3.15)
+cmake_minimum_required(VERSION 3.13...3.15)
 
-project(cereal LANGUAGES CXX)
+project(cereal LANGUAGES CXX VERSION 1.3.0)
 
 if(PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(CEREAL_MASTER_PROJECT ON)
@@ -13,20 +13,14 @@ endif()
 
 option(SKIP_PERFORMANCE_COMPARISON "Skip building performance comparison (requires boost)" OFF)
 
-# TODO: should not be needed! CK
-if(NOT CMAKE_VERSION VERSION_LESS 3.0) # installing cereal requires INTERFACE lib
-    option(JUST_INSTALL_CEREAL "Don't do anything besides installing the library" OFF)
-endif()
 
-
-if(UNIX)
-    option(THREAD_SAFE "Use mutexes to ensure thread safety" OFF)
+set(CEREAL_THREAD_LIBS "")
+if(UNIX OR APPLE)
+    option(THREAD_SAFE "Use mutexes to ensure thread safety" ON)
     if(THREAD_SAFE)
         message(STATUS "Use mutexes")
         add_definitions(-DCEREAL_THREAD_SAFE=1)
         set(CEREAL_THREAD_LIBS "pthread")
-    else()
-        set(CEREAL_THREAD_LIBS "")
     endif()
 endif()
 
@@ -44,60 +38,60 @@ else()
     if(APPLE OR CLANG_USE_LIBCPP)
         message(STATUS "Use libc++")
         add_compile_options(-stdlib=libc++)
-        # TODO: use add_link_options(-stdlib=libc++ -lc++abi") bud needs cmake 3.13! CK
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+        add_link_options(-stdlib=libc++ -lc++abi)
     endif()
 
-    # TODO: should not be needed! CK
-    # if(CMAKE_VERSION VERSION_LESS 3.1)
-    #     set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-    # else()
-        if(NOT DEFINED CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD STREQUAL "98")
-            set(CMAKE_CXX_STANDARD 11)
-        endif()
+    if(NOT DEFINED CMAKE_CXX_STANDARD)
+        set(CMAKE_CXX_STANDARD 17)
+    endif()
 
-        # XXX Why should this needed? CK
-        # if(CMAKE_CXX_STANDARD GREATER 14)
-        #     cmake_policy(VERSION 3.8)
-        # endif()
-
-        set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    # endif()
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 
-# TODO: should not be needed! CK
-# if(NOT CMAKE_VERSION VERSION_LESS 3.0)
-    add_library(cereal INTERFACE)
-    add_library(cereal::cereal ALIAS cereal)
-    target_compile_features(cereal INTERFACE cxx_std_11)
-    target_include_directories(cereal INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+add_library(cereal INTERFACE)
+add_library(cereal::cereal ALIAS cereal)
+target_include_directories(cereal INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(cereal INTERFACE cxx_std_11)
+list(APPEND CEREAL_THREAD_LIBS "cereal::cereal")
+
+
+option(CEREAL_INSTALL "Generate the install target" ${CEREAL_MASTER_PROJECT})
+if(CEREAL_INSTALL)
+    include(CMakePackageConfigHelpers)
+
+    install(TARGETS cereal EXPORT ${PROJECT_NAME}Targets)
+    install(DIRECTORY include/cereal DESTINATION include)
+
+    set(configFile ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake)
+    set(versionFile ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake)
+    set(configInstallDestination lib/cmake/${PROJECT_NAME})
+
+    configure_package_config_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+        ${configFile}
+        INSTALL_DESTINATION ${configInstallDestination}
     )
-    list(APPEND CEREAL_THREAD_LIBS "cereal::cereal")
+    write_basic_package_version_file(
+        ${versionFile}
+        COMPATIBILITY SameMajorVersion
+    )
 
-    option(CEREAL_INSTALL "Generate the install target" ${CEREAL_MASTER_PROJECT})
-    if(CEREAL_INSTALL)
-        install(TARGETS cereal EXPORT cereal
-            DESTINATION lib) # ignored
-        install(EXPORT cereal FILE cereal-config.cmake
-            NAMESPACE "cereal::"
-            DESTINATION lib/cmake/cereal)
-        install(DIRECTORY include/cereal DESTINATION include)
-    endif()
-# endif()
+    install(FILES ${configFile} ${versionFile} DESTINATION ${configInstallDestination})
+    install(
+        EXPORT ${PROJECT_NAME}Targets
+        NAMESPACE "cereal::"
+        DESTINATION ${configInstallDestination}
+    )
+endif()
 
 
-if(JUST_INSTALL_CEREAL)
+if(JUST_INSTALL_CEREAL) # NOTE: used for cmake-config-module test! CK
     return()
 endif()
-
-
-# TODO: should not be needed! CK
-# if(NOT CMAKE_VERSION VERSION_LESS 3.12)
-#     cmake_policy(VERSION 3.12)
-# endif()
 
 
 if(NOT SKIP_PERFORMANCE_COMPARISON)

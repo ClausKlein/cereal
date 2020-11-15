@@ -1,6 +1,3 @@
-if(CMAKE_VERSION LESS 3.0)
-  message(FATAL_ERROR "Cereal can't be installed with CMake < 3.0")
-endif()
 
 get_filename_component(BINARY_DIR ${CMAKE_BINARY_DIR}/build ABSOLUTE)
 get_filename_component(INSTALL_DIR ${CMAKE_BINARY_DIR}/out ABSOLUTE)
@@ -34,14 +31,8 @@ endif()
 file(WRITE ${BINARY_DIR}/test_source/CMakeLists.txt "
   cmake_minimum_required(VERSION ${CMAKE_VERSION})
   project(cereal-test-config-module)
-  if(NOT MSVC)
-      if(CMAKE_VERSION VERSION_LESS 3.1)
-          set(CMAKE_CXX_FLAGS \"-std=c++11 \${CMAKE_CXX_FLAGS}\")
-      else()
-          set(CMAKE_CXX_STANDARD 11)
-          set(CMAKE_CXX_STANDARD_REQUIRED ON)
-      endif()
-  endif()
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
   find_package(cereal REQUIRED)
   add_executable(cereal-test-config-module main.cpp)
   target_link_libraries(cereal-test-config-module cereal::cereal)
@@ -87,7 +78,7 @@ file(WRITE ${BINARY_DIR}/test_source/main.cpp "
       iarchive(m1, m2, m3); // Read the data from the archive
 
       return (m1.is_set() && m2.is_set() && m3.is_set())
-      ? EXIT_SUCCESS : EXIT_FAILURE;
+        ? EXIT_SUCCESS : EXIT_FAILURE;
     }
   }"
 )
@@ -104,7 +95,7 @@ if(result)
   message(FATAL_ERROR "Test cmake configure-step failed")
 endif()
 
-# cmake install cereal
+# cmake test build cereal
 execute_process(
   COMMAND ${CMAKE_COMMAND}
     --build ${BINARY_DIR}/test
@@ -115,11 +106,10 @@ if(result)
 endif()
 
 execute_process(
-  COMMAND ${CMAKE_CTEST_COMMAND}
+  COMMAND ${CMAKE_CTEST_COMMAND} --verbose
   WORKING_DIRECTORY ${BINARY_DIR}/test
   RESULT_VARIABLE result
 )
-
 if(result)
   message(FATAL_ERROR "Test run failed")
 endif()
