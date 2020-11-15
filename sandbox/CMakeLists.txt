@@ -1,7 +1,7 @@
 add_subdirectory(sandbox_shared_lib)
 
-# add_executable(test_unordered_load test_unordered_load.cpp)
-# target_link_libraries(test_unordered_load ${CEREAL_THREAD_LIBS})
+add_executable(unordered_load unordered_load.cpp)
+target_link_libraries(unordered_load ${CEREAL_THREAD_LIBS})
 
 add_executable(sandbox sandbox.cpp)
 target_link_libraries(sandbox ${CEREAL_THREAD_LIBS})
