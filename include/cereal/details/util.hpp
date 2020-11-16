@@ -59,7 +59,7 @@ namespace cereal
   {
     //! Demangles the type encoded in a string
     /*! @internal */
-    inline std::string demangle(std::string mangledName)
+    inline std::string demangle(const std::string &mangledName)
     {
       int status = 0;
       char *demangledName = nullptr;

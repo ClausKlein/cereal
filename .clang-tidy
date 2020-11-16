@@ -1,17 +1,30 @@
 ---
 Checks:
 '-*,
-  cert-*,-cert-err58-cpp,
+  cert-*,
+  -cert-err58-cpp,
   clang-diagnostic-*,
   clang-analyzer-*,
-  -hicpp-*,-hicpp-avoid-c-arrays,-hicpp-no-array-decay,-hicpp-explicit-*,-hicpp-use-equals-default,-hicpp-braces-around-statements,-hicpp-named-parameter,-hicpp-signed-bitwise,
-  misc-*,-misc-non-private-member-variables-in-classes,
-  modernize-*,-modernize-use-*,-modernize-avoid-c-arrays,
+  -hicpp-*,
+  -hicpp-avoid-c-arrays,
+  -hicpp-braces-around-statements,
+  -hicpp-explicit-*,
+  -hicpp-named-parameter,
+  -hicpp-no-array-decay,
+  -hicpp-signed-bitwise,
+  -hicpp-use-equals-default,
+  misc-*,
+  -misc-non-private-member-variables-in-classes,
+  modernize-*,
+  -modernize-use-*,
+  -modernize-avoid-c-arrays,
   performance-*,
   portability-*,
-  -readablity-*,
+  readablity-*,
 '
-WarningsAsErrors: 'clang-*'
+#
+# WarningsAsErrors: 'clang-*'
+#
 HeaderFilterRegex: '.*/include/cereal/.*\.hpp$'
 AnalyzeTemporaryDtors: false
 FormatStyle:     file

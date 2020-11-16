@@ -68,15 +68,12 @@ template <size_t N> inline std::string random_binary_string(std::mt19937 &gen)
 }
 // =======================================================================
 
-namespace std
+// Ostream overload for std::pair
+template<class F, class S> inline
+::std::ostream & operator<<(::std::ostream & os, ::std::pair<F, S> const & p)
 {
-  // Ostream overload for std::pair
-  template<class F, class S> inline
-  ::std::ostream & operator<<(::std::ostream & os, ::std::pair<F, S> const & p)
-  {
-    os << "([" << p.first << "], [" << p.second << "])";
-    return os;
-  }
+  os << "([" << p.first << "], [" << p.second << "])";
+  return os;
 }
 // =======================================================================
 

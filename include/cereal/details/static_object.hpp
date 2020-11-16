@@ -72,7 +72,7 @@ namespace cereal
         {
           static T t;
           //! Forces instantiation at pre-execution time
-          (void)instance;
+          (void)instance;   // NOLINT(modernize-redundant-void-arg)
           return t;
         }
 

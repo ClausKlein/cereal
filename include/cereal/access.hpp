@@ -209,7 +209,7 @@ namespace cereal
 
       construct( T * p ) : itsPtr( p ), itsEnableSharedRestoreFunction( [](){} ), itsValid( false ) {}
       construct( T * p, std::function<void()> enableSharedFunc ) : // g++4.7 ice with default lambda to std func
-        itsPtr( p ), itsEnableSharedRestoreFunction( enableSharedFunc ), itsValid( false ) {}
+        itsPtr( p ), itsEnableSharedRestoreFunction( std::move( enableSharedFunc ) ), itsValid( false ) {}
       construct( construct const & ) = delete;
       construct & operator=( construct const & ) = delete;
 

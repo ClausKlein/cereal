@@ -672,7 +672,7 @@ namespace cereal
             ar( CEREAL_NVP_("ptr_wrapper", memory_detail::make_ptr_wrapper(ptr)) );
           };
 
-        map.insert( { std::move(key), std::move(serializers) } );
+        map.insert( { key, std::move(serializers) } );
       }
     };
 
